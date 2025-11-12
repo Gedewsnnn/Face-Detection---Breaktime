@@ -112,7 +112,7 @@ Menampilkan status aktivitas secara real-time dengan tampilan GUI interaktif ber
 
 - [Cara Kerja Sistem](#-cara-kerja-sistem)
 - [Teknologi yang Digunakan](#️-technologies-used)
-- [Output](HASIL%20Tes.md)
+- [Output](Hasil%20Tes.md)
 - [Program](PROGRAM/)
 
 ---
