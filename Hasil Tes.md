@@ -33,40 +33,131 @@ Program ini tersusun atas beberapa bagian utama yang bekerja secara terkoordinas
 | 🔴 **ISTIRAHAT** | Kamera dimatikan, layar menampilkan pesan “BREAK TIME”. Sistem tetap menghitung waktu istirahat.                                        |
 | 🟣 **PERSIAPAN** | Kamera diaktifkan kembali. Sistem menunggu pengguna kembali ke area kerja. Jika wajah terdeteksi → kembali ke mode **KERJA**.           |
 
+## ⚙️ Konfigurasi
 
+### Parameter Deteksi
+
+```python
+scaleFactor = 1.1          # Skala piramida gambar
+minNeighbors = 5           # Minimum tetangga untuk validasi
+minSize = (30, 30)         # Ukuran minimum wajah (piksel)
+```
+
+### Time Configuration
+
+Edit durasi di file `config.py` atau langsung di `main.py`:
+
+```python
+# Time Configuration (in seconds)
+WORK_DURATION = 25 * 60        # 25 menit
+BREAK_DURATION = 5 * 60        # 5 menit  
+TRANSITION_DURATION = 5        # 5 detik
+PREPARE_DURATION = 5           # 5 detik
+
+# Detection Settings
+FACE_DETECTION_SCALE = 1.1
+MIN_NEIGHBORS = 5
+MIN_FACE_SIZE = (30, 30)
+
+# Visual Settings  
+RECTANGLE_COLOR = (0, 255, 0)  # Green for detected face
+RECTANGLE_THICKNESS = 2
+FONT = cv2.FONT_HERSHEY_SIMPLEX
+FONT_SCALE = 0.8
+```
 
 ## Hasil Visualisasi
-### Kondisi Mode Kerja 
+## 📋 Detail Setiap Fase
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 💼 WORK Phase
+**⏱️ Durasi: 25 menit**
+
+**Proses:**
+* 📹 Kamera aktif dan merekam
+* 🔍 Sistem deteksi wajah berjalan
+* 🎯 Menampilkan **bounding box hijau** di wajah terdeteksi
+* ⏰ Timer countdown sisa waktu kerja
+* 📊 Status: "MODE: WORK"
+
+**Output:**
+* ✅ **Wajah Terdeteksi**: Kotak hijau muncul
+* ❌ **Wajah Tidak Terdeteksi**: Warning "No Face Detected"
+
 <div align="center">
-  <img src="./assets/work.jpeg" alt="latar" width="600px"/>
-</div>
-<div align="center">
-Menampilkan video real-time dengan deteksi wajah, teks status kerja, waktu berjalan, dan jumlah wajah terdeteksi.
+  <img src="./assets/work_phase.png" alt="Work Phase" width="350px"/>
 </div>
 
-### Kondisi Mode Transisi
+</td>
+<td width="50%" valign="top">
+
+### ☕ BREAK Phase
+**⏱️ Durasi: 5 menit**
+
+**Proses:**
+* 🔴 Kamera dimatikan (privacy mode)
+* 🚫 Tidak ada deteksi wajah
+* 😌 Waktu istirahat untuk pegawai
+* ⏰ Timer countdown sisa waktu istirahat
+* 📊 Status: "MODE: BREAK"
+
+**Output:**
+* 🖥️ Layar menampilkan pesan istirahat
+* ⏳ Countdown timer istirahat
+
 <div align="center">
-  <img src="./assets/breaktime.jpeg" alt="latar" width="600px"/>
-</div>
-<div align="center">
-Muncul teks "JAM ISTIRAHAT" dan instruksi untuk meninggalkan area kerja.
+  <img src="./assets/break_phase.png" alt="Break Phase" width="350px"/>
 </div>
 
-### Kondisi Mode Istirahat
-<div align="center">
-  <img src="./assets/prepare.jpeg" alt="latar" width="600px"/>
-</div>
-<div align="center">
-Kamera mati dan layar menampilkan tulisan besar “BREAK TIME” dengan latar hitam.
-</div>
+</td>
+</tr>
+<tr>
+<td width="50%" valign="top">
 
-### Kondisi Mode Persiapan
+### ⏱️ TRANSITION Phase
+**⏱️ Durasi: 5 detik**
+
+**Proses:**
+* 🟡 Fase transisi sebelum istirahat
+* 📹 Kamera masih aktif
+* ⏳ Countdown 5 detik
+* 💬 Notifikasi: **"Get Ready for Break!"**
+* 🎨 Perubahan warna UI
+
+**Tujuan:**
+* Memberikan waktu persiapan pegawai
+* Smooth transition antar fase
 <div align="center">
-  <img src="./assets/ngantuk.jpeg" alt="latar" width="600px"/>
+  <img src="./assets/transition_phase.png" alt="Work Phase" width="350px"/>
 </div>
+</td>
+<td width="50%" valign="top">
+
+### 🎬 PREPARE Phase
+**⏱️ Durasi: 5 detik**
+
+**Proses:**
+* 🟣 Fase persiapan sebelum kerja
+* 📹 Kamera diaktifkan kembali
+* ⏳ Countdown 5 detik
+* 💬 Notifikasi: **"Get Ready to Work!"**
+* 🎯 Face detection dimulai
+
+**Tujuan:**
+* Persiapan mental kembali bekerja
+* Aktivasi sistem deteksi wajah
+
 <div align="center">
-Kamera aktif kembali, teks “STATUS: PERSIAPAN KEMBALI” muncul, dan sistem menunggu wajah terdeteksi sebelum melanjutkan ke mode kerja.
+  <img src="./assets/prepare_phase.png" alt="Work Phase" width="350px"/>
 </div>
+</td>
+</tr>
+</table>
+
+
 
 
 💡 Gambar-gambar ini menunjukkan transisi otomatis antar mode serta deteksi wajah secara real-time.
