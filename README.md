@@ -148,7 +148,7 @@ Menampilkan status aktivitas secara real-time dengan tampilan GUI interaktif ber
 ### Flowchart Sistem 
 
 <div align="center">
-  <img src="./assets/Flowchart2" alt="latar" width="600px"/>
+  <img src="./assets/Flowchart2.png" alt="latar" width="600px"/>
 </div>
 
 
