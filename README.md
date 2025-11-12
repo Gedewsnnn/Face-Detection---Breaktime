@@ -1,9 +1,13 @@
 # Face-Detection Breaktime
 <div align="justify">
 
-<div align="center">
-  <img src="./assets/cover.jpg" alt="latar" width="600px"/>
-</div>
+# Tujuan
+Program ini adalah sistem monitoring otomatis berbasis deteksi wajah menggunakan OpenCV.
+Program mendeteksi apakah seorang pegawai berada di depan kamera selama jam kerja, kemudian mengatur otomatis fase kerja → transisi → istirahat → persiapan → kerja lagi, lengkap dengan kontrol kamera (on/off) dan tampilan antarmuka (UI) di jendela video.
+
+
+
+   
 <p> Dosen Pengampu : Akhmad Hendriawan ST., MT. (NIP.197501272002121003)</p>
 <p>Mata kuliah : Pengolahan Sinyal </p><br>
 <p>Program Studi : D4 Teknik Elektronika</p><br>
