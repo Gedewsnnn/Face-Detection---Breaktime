@@ -29,7 +29,7 @@
                 <td align = center>2</td>
                 <td>Rizka Sugiharto </td>
                 <td>2122600008</td>
-                <td>https://github.com/Gedewsnnn</td>
+                <td>https://github.com/Rizka-sgh</td>
             </tr>
             <tr>
                 <td align = center>3</td>
