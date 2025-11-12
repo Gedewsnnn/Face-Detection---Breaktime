@@ -183,4 +183,4 @@ Dengan struktur modular dan parameter yang fleksibel, program ini dapat dikemban
 </div>
 
 # Video Demonstrasi
-[Tonton Demo Sistem di YouTube](https://youtu.be/qu17Bs4eRwI?si=hy5RQ7CWUZPNQdj4)
+[Tonton Demo Sistem di YouTube](https://youtu.be/)
