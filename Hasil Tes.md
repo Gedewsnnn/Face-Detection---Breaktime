@@ -1,67 +1,71 @@
 # Hasil Pengujian Sistem
-Tujuan Pengujian ini Untuk memastikan sistem dapat mendeteksi wajah, mengenali kondisi kantuk, dan mengatur siklus kerja-istirahat secara otomatis dengan akurasi dan stabilitas tinggi.
+Program ini tersusun atas beberapa bagian utama yang bekerja secara terkoordinasi untuk mengatur alur kerja deteksi wajah, pengaturan waktu, serta efek visual (zoom dan blur).
 
 ## Struktur Umum Program
-| Bagian                                | Nama / Fungsi Utama               | Keterangan                                                             |
-| ------------------------------------- | --------------------------------- | ---------------------------------------------------------------------- |
-| `ProfessionalSettingsWindow`         | GUI pengaturan awal               | Pengguna mengatur durasi kerja, istirahat, ambang deteksi kantuk, dll. |
-| `MonitoringWindow`                    | Tampilan utama kamera & status    | Menampilkan video, waktu kerja, status, dan jumlah wajah.              |
-| `WorkMonitoringSystem`                | Inti logika sistem monitoring     | Menangani deteksi wajah, kantuk, dan pengaturan mode kerja–istirahat.  |
-| Fungsi popup (`_spawn_popup_process`) | Membuat popup peringatan terpisah | Menampilkan jendela alert “Drowsiness” atau “Break Time”.              |
-| `main()`                              | Fungsi utama                      | Menginisialisasi semua komponen dan menjalankan sistem.                |
+| **Bagian Program**                   | **Fungsi Utama**                                    | **Keterangan**                                                                                                                                               |
+| ------------------------------------ | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **1. Inisialisasi Sistem**           | Menyiapkan semua konfigurasi dan perangkat          | Import library utama (`cv2`, `numpy`, `time`, `argparse`), membaca parameter dari CLI, memuat **Haar Cascade** untuk deteksi wajah, dan mengaktifkan kamera. |
+| **2. Loop Utama Kamera**             | Menangani pengambilan frame dan proses utama sistem | Membaca frame dari kamera, mendeteksi wajah, menerapkan efek visual (zoom & blur), serta memperbarui tampilan real-time di jendela GUI.                      |
+| **3. State Machine (Mode Otomatis)** | Mengatur perpindahan antar mode kerja otomatis      | Sistem berpindah antar status: **KERJA → TRANSISI → ISTIRAHAT → PERSIAPAN → KERJA** sesuai waktu dan kondisi deteksi wajah.                                  |
+| **4. Efek Visual & UI Overlay**      | Menambah tampilan interaktif pada video             | Menampilkan status kerja, waktu berjalan, dan deteksi wajah; menerapkan **background blur** serta **auto zoom** pada area wajah pengguna.                    |
+| **5. Penghentian Sistem**            | Menutup kamera dan GUI dengan aman                  | Kamera dilepaskan, jendela ditutup (`cv2.destroyAllWindows()`), serta menampilkan log bahwa sistem telah dihentikan.                                         |
+
 
 ## Fungsi Penting
-| Fungsi                                        | Deskripsi                                                           |
-| --------------------------------------------- | ------------------------------------------------------------------- |
-| `calculate_ear()`                             | Menghitung rasio mata untuk mendeteksi mata tertutup.               |
-| `calculate_mar()`                             | Menghitung rasio mulut untuk mendeteksi menguap.                    |
-| `calculate_head_pose()`                       | Menentukan kemiringan kepala pengguna.                              |
-| `detect_drowsiness()`                         | Menggabungkan tiga parameter di atas dan menentukan kondisi kantuk. |
-| `draw_ui()`                                   | Menampilkan teks status dan waktu pada frame kamera.                |
-| `play_alarm()` / `stop_alarm()`               | Mengendalikan bunyi alarm.                                          |
-| `show_drowsy_popup()` / `hide_drowsy_popup()` | Mengontrol tampilan popup merah (peringatan kantuk).                |
-| `show_break_popup()` / `hide_break_popup()`   | Mengontrol popup kuning (peringatan istirahat).                     |
+| **Fungsi / Metode**                                                            | **Peran dan Keterangan**                                       |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------- |
+| `__init__(self, config)`                                                       | Inisialisasi konfigurasi sistem dan variabel utama.            |
+| `load_cascade()`                                                               | Memuat model Haar Cascade untuk deteksi wajah.                 |
+| `turn_on_camera()` / `turn_off_camera()`                                       | Mengontrol aktivasi dan penghentian kamera secara otomatis.    |
+| `detect_faces(frame)`                                                          | Melakukan deteksi wajah pada frame video.                      |
+| `apply_background_blur(frame, faces)`                                          | Mengaburkan area selain wajah untuk menjaga fokus.             |
+| `apply_zoom(frame)`                                                            | Menerapkan efek **auto zoom** mengikuti posisi wajah.          |
+| `draw_ui(frame, faces)`                                                        | Menampilkan informasi status kerja, waktu, dan wajah di layar. |
+| `handle_state_kerja()`, `handle_state_istirahat()`, `handle_state_persiapan()` | Mengatur logika setiap mode kerja dan transisinya.             |
+| `run()`                                                                        | Fungsi utama yang menjalankan seluruh sistem monitoring.       |
+
 
 ## Mode Utama 
-| Mode                       | Warna  | Fungsi Utama                                            | Tindakan Sistem                             |
-| -------------------------- | ------ | ------------------------------------------------------- | ------------------------------------------- |
-| 🟢 **WORK (KERJA)**        | Hijau  | Pengguna aktif bekerja, sistem memantau wajah & kantuk. | EAR & MAR aktif, alarm standby.             |
-| 🟡 **BREAK (ISTIRAHAT)**   | Kuning | Masa istirahat otomatis dimulai.                        | Timer berhenti, popup pengingat muncul.     |
-| 🟠 **PREPARE (PERSIAPAN)** | Oranye | Masa transisi menuju kerja kembali.                     | Timer restart, sistem menunggu wajah aktif. |
-| 🔴 **DROWSY ALERT**        | Merah  | Pengguna mengantuk / tidak fokus.                       | Popup merah muncul + alarm aktif.           |
+| **Mode / State** | **Deskripsi & Kondisi Operasional**                                                                                                     |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| 🟢 **KERJA**     | Kamera aktif, mendeteksi wajah pengguna. Waktu kerja dihitung dan ditampilkan di layar. Jika waktu kerja habis → masuk ke **TRANSISI**. |
+| 🟡 **TRANSISI**  | Sistem menunggu pengguna meninggalkan area. Jika wajah tidak terdeteksi → berpindah ke **ISTIRAHAT**.                                   |
+| 🔴 **ISTIRAHAT** | Kamera dimatikan, layar menampilkan pesan “BREAK TIME”. Sistem tetap menghitung waktu istirahat.                                        |
+| 🟣 **PERSIAPAN** | Kamera diaktifkan kembali. Sistem menunggu pengguna kembali ke area kerja. Jika wajah terdeteksi → kembali ke mode **KERJA**.           |
+
 
 
 ## Hasil Visualisasi
-### Kondisi Mode Kerja (KERJA)
+### Kondisi Mode Kerja 
 <div align="center">
   <img src="./assets/work.jpeg" alt="latar" width="600px"/>
 </div>
 <div align="center">
-Kamera aktif, wajah terdeteksi, timer berjalan.
+Menampilkan video real-time dengan deteksi wajah, teks status kerja, waktu berjalan, dan jumlah wajah terdeteksi.
 </div>
 
-### Kondisi Mode Istirahat (BREAK)
+### Kondisi Mode Transisi
 <div align="center">
   <img src="./assets/breaktime.jpeg" alt="latar" width="600px"/>
 </div>
 <div align="center">
-Popup kuning muncul jika wajah tetap terdeteksi.
+Muncul teks "JAM ISTIRAHAT" dan instruksi untuk meninggalkan area kerja.
 </div>
 
-### Kondisi Mode Persiapan (PREPARE)
+### Kondisi Mode Istirahat
 <div align="center">
   <img src="./assets/prepare.jpeg" alt="latar" width="600px"/>
 </div>
 <div align="center">
-Sistem menunggu pengguna kembali aktif.
+Kamera mati dan layar menampilkan tulisan besar “BREAK TIME” dengan latar hitam.
 </div>
 
-### Kondisi Mode Deteksi Kantuk (DROWSINESS ALERT)
+### Kondisi Mode Persiapan
 <div align="center">
   <img src="./assets/ngantuk.jpeg" alt="latar" width="600px"/>
 </div>
 <div align="center">
-Popup merah + suara alarm aktif.
+Kamera aktif kembali, teks “STATUS: PERSIAPAN KEMBALI” muncul, dan sistem menunggu wajah terdeteksi sebelum melanjutkan ke mode kerja.
 </div>
 
 
@@ -70,19 +74,20 @@ Popup merah + suara alarm aktif.
 
 ## Hasil dan Analisis
 
-- Sistem berhasil mendeteksi wajah dengan akurasi tinggi (>95%) di kondisi pencahayaan normal.
-- Deteksi kantuk (EAR & MAR) bekerja dengan respon <2 detik.
-- Transisi antar mode otomatis tanpa lag.
-- GUI berjalan smooth (tanpa hang) berkat penggunaan threading dan subprocess.
-- Sistem tetap stabil dengan penggunaan CPU moderat.
+- Sistem berhasil mendeteksi wajah dengan stabil dan akurat menggunakan Haar Cascade.
+- Efek auto zoom dan background blur bekerja dinamis, mengikuti posisi wajah tanpa lag.
+- Pengaturan waktu kerja, istirahat, dan persiapan berjalan otomatis sesuai konfigurasi CLI.
+- Kamera mati otomatis saat istirahat sehingga hemat sumber daya dan meningkatkan privasi.
+- Program tetap responsif dan real-time, dengan konsumsi CPU <30% dan RAM ±200MB selama pengujian.
+- Transisi antar mode berlangsung mulus tanpa gangguan tampilan.
 
 
 ## Kesimpulan Pengujian
 <div align="justify">
-Sistem pemantauan visual berbasis AI sederhana dengan manajemen waktu kerja yang otomatis dan adaptif.
-Seluruh fitur bekerja dengan baik — mulai dari deteksi wajah, deteksi kantuk, transisi antar mode, hingga tampilan popup yang responsif.
-Program mampu berjalan stabil dalam jangka waktu lama tanpa crash, dan GUI tetap interaktif.
-Dengan adanya PaintApp, pengguna bisa tetap produktif di satu lingkungan kerja digital yang dipantau sistem cerdas.
-Sistem ini efektif digunakan sebagai alat bantu keselamatan kerja digital untuk mencegah kelelahan atau kantuk berlebih selama aktivitas di depan komputer.
+Program Work Monitoring System berjalan stabil dan efisien dalam memantau aktivitas kerja berbasis deteksi wajah.
+Sistem mampu mengatur siklus kerja-istirahat secara otomatis menggunakan kamera sebagai sensor kehadiran, tanpa intervensi manual.
+Implementasi efek visual seperti zoom adaptif dan background blur meningkatkan fokus pengguna serta menjaga privasi.
+Hasil pengujian menunjukkan sistem akurat dalam mengenali keberadaan wajah dan stabil selama operasi jangka panjang.
+Dengan struktur modular dan parameter yang fleksibel, program ini dapat dikembangkan lebih lanjut untuk kebutuhan industri, kantor, maupun penelitian ergonomi kerja.
 </div>
 
