@@ -8,16 +8,19 @@
   
 </div>
 Program Face Detection Breaktime adalah sistem monitoring otomatis berbasis deteksi wajah menggunakan OpenCV. Program mendeteksi apakah seorang pegawai berada di depan kamera selama jam kerja, kemudian mengatur otomatis fase kerja → transisi → istirahat → persiapan → kerja lagi, lengkap dengan kontrol kamera (on/off) dan tampilan antarmuka (UI) di jendela video.
-* 👀 Deteksi Kehadiran Cerdas: Secara otomatis mendeteksi apakah Anda berada di depan kamera selama jam kerja yang ditentukan.
-* 🔄 Manajemen Siklus Otomatis: Tidak perlu lagi mengatur timer manual! FocusFlow secara mandiri mengelola alur kerja Anda melalui fase-fase yang jelas:
- - 1.  Kerja: Mode fokus saat Anda terdeteksi.
- - 2.  Transisi: Peringatan singkat bahwa waktu istirahat akan segera dimulai.
- - 3.  Istirahat: Waktu untuk Anda beranjak dari meja, meregangkan kaki, atau mengistirahatkan mata.
- - 4.  Persiapan: Peringatan singkat untuk kembali ke meja dan bersiap.
- - 5.  (Kembali ke Fase Kerja)
-* 🖥 Overlay UI Intuitif: Semua informasi yang Anda butuhkan (status saat ini, timer) ditampilkan dengan elegan sebagai overlay di jendela video Anda. Tidak perlu berganti-ganti aplikasi.
-* 📹 Kontrol Kamera Cerdas: Mengatur status on/off kamera secara dinamis sesuai dengan kebutuhan fase (misalnya, kamera mungkin non-aktif selama fase istirahat untuk privasi).
+
+* 👀 **Deteksi Kehadiran Cerdas:** Secara otomatis mendeteksi apakah Anda berada di depan kamera selama jam kerja yang ditentukan.
+* 🔄 **Manajemen Siklus Otomatis:** Tidak perlu lagi mengatur timer manual! FocusFlow secara mandiri mengelola alur kerja Anda melalui fase-fase yang jelas:
+  1. **Kerja** — Mode fokus saat Anda terdeteksi.
+  2. **Transisi** — Peringatan singkat bahwa waktu istirahat akan segera dimulai.
+  3. **Istirahat** — Waktu untuk Anda beranjak dari meja, meregangkan kaki, atau mengistirahatkan mata.
+  4. **Persiapan** — Peringatan singkat untuk kembali ke meja dan bersiap.
+  5. *(Kembali ke Fase Kerja)*
+* 🖥 **Overlay UI Intuitif:** Semua informasi yang Anda butuhkan (status saat ini, timer) ditampilkan dengan elegan sebagai overlay di jendela video Anda. Tidak perlu berganti-ganti aplikasi.
+* 📹 **Kontrol Kamera Cerdas:** Mengatur status on/off kamera secara dinamis sesuai dengan kebutuhan fase (misalnya, kamera nonaktif selama fase istirahat untuk privasi).
+
 Sistem ini dirancang untuk membantu menjaga keseimbangan produktivitas dan kesehatan selama bekerja.
+
 
 PENGOLAHAN CITRA - PROGRAM STUDI TEKNIK ELEKTRONIKA - POLITEKNIK ELEKTRONIKA NEGERI SURABAYA
 
