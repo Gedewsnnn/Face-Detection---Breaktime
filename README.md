@@ -23,7 +23,7 @@
                 <td align = center>1</td>
                 <td>M. Adib Tantowi Jauhari</td>
                 <td>2122600001</td>
-                <td>https://github.com/alwansyahendrawan</td>
+                <td>https://github.com/AdibTantowi</td>
             </tr>
             <tr>
                 <td align = center>2</td>
