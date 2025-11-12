@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./assets/cover.jpg" alt="latar" width="600px"/>
+  <img src="./assets/coverbreeaktime.jpg" alt="latar" width="600px"/>
 </div>
 
 
@@ -42,7 +42,9 @@ Menampilkan status aktivitas secara real-time dengan tampilan GUI interaktif ber
 </table>
 
 ## 👥 Teammates
-
+<div align="center">
+  <img src="./assets/anggota.jpg" alt="latar" width="600px"/>
+</div>
 <table align="center">
   <thead>
     <tr>
