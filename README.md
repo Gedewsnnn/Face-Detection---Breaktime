@@ -110,7 +110,6 @@ Menampilkan status aktivitas secara real-time dengan tampilan GUI interaktif ber
 
 - [Cara Kerja Sistem](#-cara-kerja-sistem)
 - [Teknologi yang Digunakan](#️-technologies-used)
-- [Demo Sistem](#️-screenshots)
 - [Output](HASIL_Tes.md)
 - [Program](PROGRAM/)
 
@@ -152,25 +151,12 @@ Menampilkan status aktivitas secara real-time dengan tampilan GUI interaktif ber
 
 ### 🧩 Core Components
 
-- **🎭 Haar Cascade Classifier** - Pre-trained model `haarcascade_frontalface_default.xml` untuk deteksi wajah
-- **⏰ DateTime Module** - Manajemen waktu dan timer untuk setiap fase
-- **🖼️ CV2 GUI** - Window display dan overlay UI untuk interaksi visual
-- **🎨 Drawing Functions** - Rectangle, text, dan shape untuk visual feedback
+- Haar Cascade Classifier - Pre-trained model `haarcascade_frontalface_default.xml` untuk deteksi wajah
+- DateTime Module - Manajemen waktu dan timer untuk setiap fase
+- CV2 GUI - Window display dan overlay UI untuk interaksi visual
+- Drawing Functions - Rectangle, text, dan shape untuk visual feedback
 
----
-
-## 🧠 Algoritma Deteksi Wajah
-
-Sistem menggunakan **Haar Cascade Classifier** yang bekerja dengan cara:
-
-1. **Cascade of Classifiers** - Menggunakan multiple stage classifier untuk deteksi objek
-2. **Sliding Window** - Scanner bergerak di seluruh frame untuk mencari pola wajah
-3. **Feature Detection** - Mendeteksi fitur seperti mata, hidung, mulut untuk identifikasi wajah
-4. **Bounding Box** - Menggambar rectangle hijau di sekitar wajah yang terdeteksi
-
----
-
-## ⌨️ Keyboard Controls
+### ⌨️ Keyboard Controls
 
 | Key | Function | Description |
 |:---:|:---------|:------------|
@@ -179,41 +165,20 @@ Sistem menggunakan **Haar Cascade Classifier** yang bekerja dengan cara:
 | `P` | Pause/Resume | Pause atau resume timer (jika diimplementasikan) |
 | `R` | Reset | Reset cycle ke WORK phase awal |
 | `S` | Screenshot | Capture frame saat ini |
-
 ---
 
-## ⚙️ Konfigurasi
+### 🧠 Algoritma Deteksi Wajah
 
-### Parameter Deteksi
+Sistem menggunakan **Haar Cascade Classifier** yang bekerja dengan cara:
 
-```python
-scaleFactor = 1.1          # Skala piramida gambar
-minNeighbors = 5           # Minimum tetangga untuk validasi
-minSize = (30, 30)         # Ukuran minimum wajah (piksel)
-```
+1. **Cascade of Classifiers** - Menggunakan multiple stage classifier untuk deteksi objek
+2. **Sliding Window** - Scanner bergerak di seluruh frame untuk mencari pola wajah
+3. **Feature Detection** - Mendeteksi fitur seperti mata, hidung, mulut untuk identifikasi wajah
+4. **Bounding Box** - Menggambar rectangle hijau di sekitar wajah yang terdeteksi
 
-### Time Configuration
 
-Edit durasi di file `config.py` atau langsung di `main.py`:
 
-```python
-# Time Configuration (in seconds)
-WORK_DURATION = 25 * 60        # 25 menit
-BREAK_DURATION = 5 * 60        # 5 menit  
-TRANSITION_DURATION = 5        # 5 detik
-PREPARE_DURATION = 5           # 5 detik
 
-# Detection Settings
-FACE_DETECTION_SCALE = 1.1
-MIN_NEIGHBORS = 5
-MIN_FACE_SIZE = (30, 30)
-
-# Visual Settings  
-RECTANGLE_COLOR = (0, 255, 0)  # Green for detected face
-RECTANGLE_THICKNESS = 2
-FONT = cv2.FONT_HERSHEY_SIMPLEX
-FONT_SCALE = 0.8
-```
 
 
 
