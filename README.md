@@ -1,7 +1,7 @@
 <div align="center">
   <img src="./assets/coverbreeaktime.jpg" alt="latar" width="600px"/>
 </div>
-as
+
   # Face Detection Breaktime System
   
   <p><i>Sistem monitoring otomatis berbasis deteksi wajah untuk keseimbangan produktivitas & kesehatan</i></p>
