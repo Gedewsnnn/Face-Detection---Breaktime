@@ -47,7 +47,7 @@
                 <td align = center>5</td>
                 <td>Bachtiar Arif Nurdiansyah</td>
                 <td>2122600058</td>
-                <td>https://github.com/Wildan-Aldi</td>
+                <td>https://github.com/BachtiarArif</td>
                 </tr>
         </tbody>
     </table>
