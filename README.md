@@ -35,7 +35,7 @@
                 <td align = center>3</td>
                 <td>Muhammad Lukman Al Khakim</td>
                 <td>2122600010</td>
-                <td>https://github.com/Repii050</td>
+                <td>https://github.com/lukmanhakim100523-droid</td>
             </tr>
                 <tr>
                 <td align = center>4</td>
