@@ -67,5 +67,5 @@ Didesain untuk lingkungan kerja industri, sistem ini mampu mengenali wajah pengg
 
 # Diagram Alur
 <div align="center">
-  <img src="./assets/Flowchat2.png" alt="latar" width="600px"/>
+  <img src="./assets/Flowchart2.png" alt="latar" width="600px"/>
 </div>
