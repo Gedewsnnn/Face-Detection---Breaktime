@@ -3,13 +3,9 @@
 </div>
 
 
-  # 🎯 Face Detection Breaktime System
+  # Face Detection Breaktime System
   
   <p><i>Sistem monitoring otomatis berbasis deteksi wajah untuk keseimbangan produktivitas & kesehatan</i></p>
-  
-  ![Python](https://img.shields.io/badge/Python-3.9+-3776AB?style=flat-square&logo=python&logoColor=white)
-  ![OpenCV](https://img.shields.io/badge/OpenCV-4.8+-5C3EE8?style=flat-square&logo=opencv&logoColor=white)
-  ![Status](https://img.shields.io/badge/Status-Active-success?style=flat-square)
   
 </div>
 
@@ -20,7 +16,7 @@ Program **Face Detection Breaktime** adalah sistem monitoring otomatis berbasis 
 `DOSEN PENGAMPU : Akhmad Hendriawan ST, MT`
 `NIP. 197501272002121003`
 
-## 🎯 Tujuan
+## Tujuan
 
 <table>
 <tr>
@@ -36,23 +32,86 @@ Mengatur siklus kerja dan istirahat secara otomatis dengan pattern: **WORK → T
 <td width="50%" valign="top">
 
 ### 📹 Smart Camera Control
-Mengelola aktivasi/deaktivasi kamera otomatis sesuai fase yang berjalan untuk efisiensi dan privasi pengguna.
+Mendeteksi kehadiran pegawai melalui kamera dengan akurasi tinggi (Haar Cascade). Mengelola aktivasi/deaktivasi kamera otomatis sesuai fase yang berjalan untuk efisiensi dan privasi pengguna.
 
 ### 🖥️ Interactive Visual Interface
-Menampilkan status sistem, countdown timer, dan informasi deteksi wajah secara real-time langsung di jendela video.
+Menampilkan status aktivitas secara real-time dengan tampilan GUI interaktif berbasis OpenCV. Menampilkan status sistem, countdown timer, dan informasi deteksi wajah secara real-time langsung di jendela video.
 
 </td>
 </tr>
 </table>
 
----
+## 👥 Teammates
+
+<table align="center">
+  <thead>
+    <tr>
+      <th width="40px">No.</th>
+      <th width="250px">Nama</th>
+      <th width="120px">NRP</th>
+      <th width="100px">GitHub</th>
+    </tr>
+  </thead>
+  <tbody align="center">
+    <tr>
+      <td>1</td>
+      <td>M. Adib Tantowi Jauhari</td>
+      <td>2122600001</td>
+      <td>
+        <a href="https://github.com/AdibTantowi">
+          <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white"/>
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>2</td>
+      <td>Rizka Sugiharto</td>
+      <td>2122600008</td>
+      <td>
+        <a href="https://github.com/Rizka-sgh">
+          <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white"/>
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>3</td>
+      <td>Muhammad Lukman Al Khakim</td>
+      <td>2122600010</td>
+      <td>
+        <a href="https://github.com/lukmanhakim100523-droid">
+          <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white"/>
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>4</td>
+      <td>I Gede Wahyu Satria Nugraha</td>
+      <td>2122600033</td>
+      <td>
+        <a href="https://github.com/Gedewsnnn">
+          <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white"/>
+        </a>
+      </td>
+    </tr>
+    <tr>
+      <td>5</td>
+      <td>Bachtiar Arif Nurdiansyah</td>
+      <td>2122600058</td>
+      <td>
+        <a href="https://github.com/BachtiarArif">
+          <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white"/>
+        </a>
+      </td>
+    </tr>
+  </tbody>
+</table>
 
 ## 📑 Daftar Isi
 
 - [Cara Kerja Sistem](#-cara-kerja-sistem)
 - [Teknologi yang Digunakan](#️-technologies-used)
 - [Demo Sistem](#️-screenshots)
-- [Output](HASIL_TES.md)
+- [Output](HASIL_Tes.md)
 - [Program](PROGRAM/)
 
 ---
@@ -74,137 +133,14 @@ Menampilkan status sistem, countdown timer, dan informasi deteksi wajah secara r
 
 ## 🔄 Cara Kerja Sistem
 
-### Alur Sistem
-
-<div align="center">
-
-```mermaid
-graph TD
-    A[🚀 Program Start] --> B[📹 Initialize Camera]
-    B --> C[🧠 Load Face Detector]
-    C --> D[💼 WORK Phase - 25 min]
-    
-    D --> |Camera ON| D1[Detect Face]
-    D1 --> |Face Found| D2[✅ Show Green Rectangle]
-    D1 --> |No Face| D3[⚠️ Alert: No Presence]
-    D2 --> D4[Update Timer]
-    D3 --> D4
-    D4 --> |Time Up| E
-    
-    E[⏱️ TRANSITION - 5s] --> F[☕ BREAK Phase - 5 min]
-    F --> |Camera OFF| F1[Privacy Mode]
-    F1 --> |Time Up| G
-    
-    G[🎬 PREPARE - 5s] --> H[Camera ON]
-    H --> |Ready| D
-    
-    style D fill:#4CAF50,color:#fff
-    style F fill:#FF9800,color:#fff
-    style E fill:#2196F3,color:#fff
-    style G fill:#9C27B0,color:#fff
-```
-
-</div>
 
 ### Flowchart Sistem 
 
 <div align="center">
-  <img src="./assets/Flowchart_Sistem_2.jpg" alt="latar" width="600px"/>
+  <img src="./assets/Flowchart2.png" alt="latar" width="600px"/>
 </div>
 
----
 
-## 📋 Detail Setiap Fase
-
-<table>
-<tr>
-<td width="50%" valign="top">
-
-### 💼 WORK Phase
-**⏱️ Durasi: 25 menit**
-
-**Proses:**
-- 📹 Kamera aktif dan merekam
-- 🔍 Sistem deteksi wajah berjalan
-- 🎯 Menampilkan **bounding box hijau** di wajah terdeteksi
-- ⏰ Timer countdown sisa waktu kerja
-- 📊 Status: "MODE: WORK"
-
-**Output:**
-- ✅ **Wajah Terdeteksi**: Kotak hijau muncul
-- ❌ **Wajah Tidak Terdeteksi**: Warning "No Face Detected"
-
-<div align="center">
-  <img src="./assets/work_phase.png" alt="Work Phase" width="350px"/>
-</div>
-
-</td>
-<td width="50%" valign="top">
-
-### ☕ BREAK Phase
-**⏱️ Durasi: 5 menit**
-
-**Proses:**
-- 🔴 Kamera dimatikan (privacy mode)
-- 🚫 Tidak ada deteksi wajah
-- 😌 Waktu istirahat untuk pegawai
-- ⏰ Timer countdown sisa waktu istirahat
-- 📊 Status: "MODE: BREAK"
-
-**Output:**
-- 🖥️ Layar menampilkan pesan istirahat
-- ⏳ Countdown timer istirahat
-
-<div align="center">
-  <img src="./assets/break_phase.png" alt="Break Phase" width="350px"/>
-</div>
-
-</td>
-</tr>
-<tr>
-<td width="50%" valign="top">
-
-### ⏱️ TRANSITION Phase
-**⏱️ Durasi: 5 detik**
-
-**Proses:**
-- 🟡 Fase transisi sebelum istirahat
-- 📹 Kamera masih aktif
-- ⏳ Countdown 5 detik
-- 💬 Notifikasi: **"Get Ready for Break!"**
-- 🎨 Perubahan warna UI
-
-**Tujuan:**
-- Memberikan waktu persiapan pegawai
-- Smooth transition antar fase
-
-</td>
-<td width="50%" valign="top">
-
-### 🎬 PREPARE Phase
-**⏱️ Durasi: 5 detik**
-
-**Proses:**
-- 🟣 Fase persiapan sebelum kerja
-- 📹 Kamera diaktifkan kembali
-- ⏳ Countdown 5 detik
-- 💬 Notifikasi: **"Get Ready to Work!"**
-- 🎯 Face detection dimulai
-
-**Tujuan:**
-- Persiapan mental kembali bekerja
-- Aktivasi sistem deteksi wajah
-
-</td>
-</tr>
-</table>
-
-<div align="center">
-  <img src="./assets/transition_phase.png" alt="Transition" width="500px"/>
-  <p><i>Countdown transisi antar fase</i></p>
-</div>
-
----
 
 ## 🛠️ Technologies Used
 
@@ -279,125 +215,7 @@ FONT = cv2.FONT_HERSHEY_SIMPLEX
 FONT_SCALE = 0.8
 ```
 
----
-
-## 🖼️ Screenshots
-
-### 💼 Work Phase - Face Detected
-
-<div align="center">
-  <img src="./assets/work_phase.png" alt="Work Phase" width="700px"/>
-  <p><i>Kamera aktif, wajah terdeteksi dengan bounding box hijau, timer menunjukkan sisa waktu kerja</i></p>
-</div>
-
-### ☕ Break Phase
-
-<div align="center">
-  <img src="./assets/break_phase.png" alt="Break Phase" width="700px"/>
-  <p><i>Kamera nonaktif, layar menampilkan waktu istirahat dan pesan relaksasi</i></p>
-</div>
-
-### ⏱️ Transition Phase
-
-<div align="center">
-  <img src="./assets/transition_phase.png" alt="Transition" width="700px"/>
-  <p><i>Countdown 5 detik sebelum memasuki fase berikutnya</i></p>
-</div>
-
----
-
-## 👥 Teammates
-
-<table align="center">
-  <thead>
-    <tr>
-      <th width="40px">No.</th>
-      <th width="250px">Nama</th>
-      <th width="120px">NRP</th>
-      <th width="100px">GitHub</th>
-    </tr>
-  </thead>
-  <tbody align="center">
-    <tr>
-      <td>1</td>
-      <td>M. Adib Tantowi Jauhari</td>
-      <td>2122600001</td>
-      <td>
-        <a href="https://github.com/AdibTantowi">
-          <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white"/>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td>2</td>
-      <td>Rizka Sugiharto</td>
-      <td>2122600008</td>
-      <td>
-        <a href="https://github.com/Rizka-sgh">
-          <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white"/>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td>3</td>
-      <td>Muhammad Lukman Al Khakim</td>
-      <td>2122600010</td>
-      <td>
-        <a href="https://github.com/lukmanhakim100523-droid">
-          <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white"/>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td>4</td>
-      <td>I Gede Wahyu Satria Nugraha</td>
-      <td>2122600033</td>
-      <td>
-        <a href="https://github.com/Gedewsnnn">
-          <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white"/>
-        </a>
-      </td>
-    </tr>
-    <tr>
-      <td>5</td>
-      <td>Bachtiar Arif Nurdiansyah</td>
-      <td>2122600058</td>
-      <td>
-        <a href="https://github.com/BachtiarArif">
-          <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white"/>
-        </a>
-      </td>
-    </tr>
-  </tbody>
-</table>
 
 
-## 🎓 Academic Information
 
-<div align="center">
 
-**📚 Mata Kuliah:** Pengolahan Citra  
-**🏫 Program Studi:** D4 Teknik Elektronika  
-**🏛️ Institusi:** Politeknik Elektronika Negeri Surabaya  
-**👨‍🏫 Dosen Pengampu:** Akhmad Hendriawan ST., MT.  
-**🆔 NIP:** 197501272002121003
-
-</div>
-
----
-
-<div align="center">
-
-### ⭐ Jangan lupa berikan star jika project ini bermanfaat! ⭐
-
-![GitHub stars](https://img.shields.io/github/stars/[username]/face-detection-breaktime?style=social)
-![GitHub forks](https://img.shields.io/github/forks/[username]/face-detection-breaktime?style=social)
-![GitHub watchers](https://img.shields.io/github/watchers/[username]/face-detection-breaktime?style=social)
-
----
-
-**Made with ❤️ by Team Elektronika PENS**
-
-**© 2024 Politeknik Elektronika Negeri Surabaya**
-
-</div>
