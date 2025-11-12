@@ -1,1 +1,342 @@
+import cv2
+import numpy as np
+import time
+import argparse
+from datetime import datetime
 
+class WorkMonitoringSystem:
+    def _init_(self, config):
+        """Inisialisasi sistem dengan konfigurasi dari CLI"""
+        self.config = config
+        self.face_cascade = self.load_cascade()
+        self.cap = None
+        self.state = "KERJA"
+        self.timer_start = None
+        self.elapsed_time = 0
+        self.face_detected = False
+        self.camera_off = False  # status kamera
+
+        # Zoom properties
+        self.current_zoom = 1.0
+        self.target_zoom = 1.0
+        self.zoom_center_x = 0.5
+        self.zoom_center_y = 0.5
+        self.target_center_x = 0.5
+        self.target_center_y = 0.5
+
+        # Face position untuk blur
+        self.current_face_rect = None
+
+    def load_cascade(self):
+        """Memuat Haar Cascade classifier"""
+        path = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        face_cascade = cv2.CascadeClassifier(path)
+        if face_cascade.empty():
+            raise RuntimeError("Gagal memuat Haar Cascade.")
+        return face_cascade
+
+    def turn_off_camera(self):
+        """Matikan kamera saat istirahat"""
+        if self.cap is not None and self.cap.isOpened():
+            self.cap.release()
+            print("[INFO] Kamera dimatikan selama istirahat.")
+
+    def turn_on_camera(self):
+        """Nyalakan kamera kembali setelah istirahat"""
+        if self.cap is None or not self.cap.isOpened():
+            self.cap = cv2.VideoCapture(self.config['camera_index'])
+            self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.config['width'])
+            self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.config['height'])
+            print("[INFO] Kamera diaktifkan kembali.")
+
+    def detect_faces(self, frame):
+        """Deteksi wajah pada frame"""
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        gray = cv2.equalizeHist(gray)
+        faces = self.face_cascade.detectMultiScale(
+            gray,
+            scaleFactor=self.config['scale_factor'],
+            minNeighbors=self.config['min_neighbors'],
+            minSize=(30, 30)
+        )
+        return faces
+
+    def apply_background_blur(self, frame, faces):
+        """Aplikasikan blur pada background, biarkan wajah tetap tajam"""
+        if len(faces) == 0 or not self.config['blur_enabled']:
+            return frame
+
+        mask = np.zeros(frame.shape[:2], dtype=np.uint8)
+        for (x, y, w, h) in faces:
+            x1 = max(0, x - self.config['face_padding'])
+            y1 = max(0, y - self.config['face_padding'])
+            x2 = min(frame.shape[1], x + w + self.config['face_padding'])
+            y2 = min(frame.shape[0], y + h + self.config['face_padding'])
+            cv2.rectangle(mask, (x1, y1), (x2, y2), 255, -1)
+
+        blurred = cv2.GaussianBlur(frame, (self.config['blur_strength'], self.config['blur_strength']), 0)
+        mask_3ch = cv2.cvtColor(mask, cv2.COLOR_GRAY2BGR)
+        mask_3ch = cv2.GaussianBlur(mask_3ch, (21, 21), 0)
+        mask_3ch = mask_3ch.astype(float) / 255.0
+        result = (frame.astype(float) * mask_3ch + blurred.astype(float) * (1 - mask_3ch))
+        return result.astype(np.uint8)
+
+    def draw_faces(self, frame, faces):
+        if len(faces) > 0:
+            largest_face = max(faces, key=lambda f: f[2] * f[3])
+            x, y, w, h = largest_face
+            self.current_face_rect = (x, y, w, h)
+
+            if self.config['show_bbox']:
+                cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
+
+            if self.config['zoom_enabled']:
+                height, width = frame.shape[:2]
+                self.target_center_x = (x + w/2) / width
+                self.target_center_y = (y + h/2) / height
+                self.target_zoom = self.config['zoom_scale']
+        else:
+            self.current_face_rect = None
+            self.target_zoom = 1.0
+            self.target_center_x = 0.5
+            self.target_center_y = 0.5
+
+        return frame
+
+    def apply_zoom(self, frame):
+        if not self.config['zoom_enabled']:
+            return frame
+        self.current_zoom += (self.target_zoom - self.current_zoom) * self.config['zoom_smooth']
+        self.zoom_center_x += (self.target_center_x - self.zoom_center_x) * self.config['zoom_smooth']
+        self.zoom_center_y += (self.target_center_y - self.zoom_center_y) * self.config['zoom_smooth']
+
+        if abs(self.current_zoom - 1.0) < 0.01:
+            return frame
+
+        height, width = frame.shape[:2]
+        new_width = int(width / self.current_zoom)
+        new_height = int(height / self.current_zoom)
+        center_x = int(self.zoom_center_x * width)
+        center_y = int(self.zoom_center_y * height)
+        x1 = max(0, center_x - new_width // 2)
+        y1 = max(0, center_y - new_height // 2)
+        x2 = min(width, x1 + new_width)
+        y2 = min(height, y1 + new_height)
+        cropped = frame[y1:y2, x1:x2]
+        zoomed = cv2.resize(cropped, (width, height), interpolation=cv2.INTER_LINEAR)
+        return zoomed
+
+    def draw_ui(self, frame, faces):
+        height, width = frame.shape[:2]
+        self.face_detected = len(faces) > 0
+        overlay = frame.copy()
+        cv2.rectangle(overlay, (0, 0), (width, 120), (0, 0, 0), -1)
+        cv2.addWeighted(overlay, 0.6, frame, 0.4, 0, frame)
+
+        if self.timer_start is None:
+            self.timer_start = time.time()
+        self.elapsed_time = time.time() - self.timer_start
+
+        should_shutdown = False
+        if self.state == "KERJA":
+            self.handle_state_kerja(frame, faces)
+        elif self.state == "TRANSISI":
+            self.handle_state_transisi(frame, faces)
+        elif self.state == "ISTIRAHAT":
+            self.handle_state_istirahat(frame, faces)
+        elif self.state == "PERSIAPAN":
+            should_shutdown = self.handle_state_persiapan(frame, faces)
+
+        timestamp = datetime.now().strftime("%H:%M:%S")
+        cv2.putText(frame, f"Time: {timestamp}", (10, height - 20),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+        return frame, should_shutdown
+
+    def handle_state_kerja(self, frame, faces):
+        remaining = self.config['waktu_kerja'] - self.elapsed_time
+        cv2.putText(frame, "STATUS: JAM KERJA", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2)
+        cv2.putText(frame, f"Waktu Kerja: {int(self.elapsed_time)}s / {self.config['waktu_kerja']}s",
+                    (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        if self.face_detected:
+            cv2.putText(frame, f"Wajah Terdeteksi: {len(faces)}", (10, 90),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        else:
+            cv2.putText(frame, "WARNING: Wajah Tidak Terdeteksi!", (10, 90),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 255), 2)
+        if self.elapsed_time >= self.config['waktu_kerja']:
+            print("[INFO] Jam kerja selesai. Masuk mode TRANSISI...")
+            self.state = "TRANSISI"
+            self.timer_start = time.time()
+
+    def handle_state_transisi(self, frame, faces):
+        cv2.putText(frame, "JAM ISTIRAHAT", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 255), 2)
+        cv2.putText(frame, f"Waktu Berjalan: {int(self.elapsed_time)}s",
+                    (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        if self.face_detected:
+            cv2.putText(frame, "Silakan Tinggalkan Area untuk Istirahat", (10, 90),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 165, 0), 2)
+        else:
+            print("[INFO] Pegawai pergi. Masuk mode ISTIRAHAT...")
+            self.state = "ISTIRAHAT"
+            self.timer_start = time.time()
+
+    def handle_state_istirahat(self, frame, faces):
+        """Handle state ISTIRAHAT"""
+        if not self.camera_off:
+            self.turn_off_camera()
+            self.camera_off = True
+
+        cv2.putText(frame, "STATUS: ISTIRAHAT", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 165, 0), 2)
+        cv2.putText(frame, f"Waktu Istirahat: {int(self.elapsed_time)}s / {self.config['waktu_istirahat']}s",
+                    (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        cv2.putText(frame, "KAMERA NONAKTIF - Sedang Istirahat...", (10, 90),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.6, (200, 200, 200), 2)
+
+        if self.elapsed_time >= self.config['waktu_istirahat']:
+            print("[INFO] Istirahat selesai. Masuk mode PERSIAPAN...")
+            self.camera_off = False
+            self.turn_on_camera()
+            self.state = "PERSIAPAN"
+            self.timer_start = time.time()
+
+    def handle_state_persiapan(self, frame, faces):
+        remaining = self.config['waktu_persiapan'] - self.elapsed_time
+        cv2.putText(frame, "STATUS: PERSIAPAN KEMBALI", (10, 30),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.8, (255, 0, 255), 2)
+        cv2.putText(frame, f"Waktu Tersisa: {max(0, int(remaining))}s",
+                    (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 2)
+        if self.face_detected:
+            cv2.putText(frame, "Wajah Terdeteksi - Siap Bekerja", (10, 90),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 255, 0), 2)
+        else:
+            cv2.putText(frame, "Menunggu Pegawai Kembali...", (10, 90),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 165, 0), 2)
+
+        if self.elapsed_time >= self.config['waktu_persiapan']:
+            if self.face_detected:
+                print("[INFO] Pegawai kembali. Mulai siklus kerja baru...")
+                self.state = "KERJA"
+                self.timer_start = time.time()
+            else:
+                print("[INFO] Tidak ada pegawai. Menutup sistem...")
+                return True
+        return False
+
+    def run(self):
+        """Jalankan sistem monitoring"""
+        self.turn_on_camera()
+        if not self.cap.isOpened():
+            print("[ERROR] Tidak dapat membuka kamera!")
+            return
+
+        print(f"[INFO] Sistem monitoring dimulai (Resolusi: {self.config['width']}x{self.config['height']})")
+        print(f"[INFO] Kamera Index: {self.config['camera_index']}")
+        print(f"[INFO] scaleFactor: {self.config['scale_factor']}, minNeighbors: {self.config['min_neighbors']}")
+        print("[INFO] Tekan 'Q' atau 'ESC' untuk keluar.")
+
+        try:
+            while True:
+                # === MODE ISTIRAHAT ===
+                if self.camera_off:
+                    frame = np.zeros((self.config['height'], self.config['width'], 3), dtype=np.uint8)
+                    cv2.putText(frame, "BREAK TIME", (50, 240),
+                                cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 3)
+
+                    # tetap update waktu istirahat
+                    self.elapsed_time = time.time() - self.timer_start
+                    frame, should_shutdown = self.draw_ui(frame, [])
+                    cv2.imshow("Industrial Face Detection Monitoring", frame)
+
+                    if should_shutdown:
+                        print("[INFO] Sistem dimatikan...")
+                        cv2.waitKey(3000)
+                        break
+
+                    key = cv2.waitKey(500) & 0xFF
+                    if key in (ord('q'), ord('Q'), 27):
+                        print("[INFO] Keluar paksa oleh pengguna...")
+                        break
+                    continue
+
+                # === MODE KERJA / PERSIAPAN / TRANSISI ===
+                ret, frame = self.cap.read()
+                if not ret:
+                    print("[ERROR] Gagal membaca frame! Coba nyalakan ulang kamera...")
+                    self.turn_on_camera()
+                    continue
+
+                faces = self.detect_faces(frame)
+                frame = self.apply_background_blur(frame, faces)
+                frame = self.draw_faces(frame, faces)
+                frame = self.apply_zoom(frame)
+                frame, should_shutdown = self.draw_ui(frame, faces)
+                cv2.imshow("Industrial Face Detection Monitoring", frame)
+
+                if should_shutdown:
+                    print("[INFO] Sistem dimatikan...")
+                    cv2.waitKey(3000)
+                    break
+
+                key = cv2.waitKey(1) & 0xFF
+                if key in (ord('q'), ord('Q'), 27):
+                    print("[INFO] Keluar paksa oleh pengguna...")
+                    break
+
+        finally:
+            if self.cap is not None:
+                self.cap.release()
+            cv2.destroyAllWindows()
+            print("[INFO] Sistem monitoring dihentikan.")
+
+
+def parse_arguments():
+    parser = argparse.ArgumentParser(description="Face Detection Monitoring System")
+    parser.add_argument("--camera", type=int, default=0, help="Index kamera (default: 0)")
+    parser.add_argument("--width", type=int, default=640, help="Lebar resolusi video (default: 640)")
+    parser.add_argument("--height", type=int, default=480, help="Tinggi resolusi video (default: 480)")
+    parser.add_argument("--scale-factor", type=float, default=1.1, help="Scale factor deteksi wajah (default: 1.1)")
+    parser.add_argument("--min-neighbors", type=int, default=5, help="Min neighbors deteksi wajah (default: 5)")
+    parser.add_argument("--waktu-kerja", type=int, default=60, help="Durasi waktu kerja (detik)")
+    parser.add_argument("--waktu-istirahat", type=int, default=30, help="Durasi waktu istirahat (detik)")
+    parser.add_argument("--waktu-persiapan", type=int, default=10, help="Durasi waktu persiapan (detik)")
+    parser.add_argument("--no-blur", action="store_true", help="Nonaktifkan background blur")
+    parser.add_argument("--no-zoom", action="store_true", help="Nonaktifkan auto zoom")
+    parser.add_argument("--zoom-scale", type=float, default=2.0, help="Tingkat zoom")
+    parser.add_argument("--zoom-smooth", type=float, default=0.15, help="Kecepatan transisi zoom")
+    parser.add_argument("--blur-strength", type=int, default=21, help="Kekuatan blur (angka ganjil)")
+    parser.add_argument("--face-padding", type=int, default=30, help="Padding wajah yang tidak di-blur")
+    return parser.parse_args()
+
+
+def main():
+    args = parse_arguments()
+    if args.blur_strength % 2 == 0:
+        args.blur_strength += 1
+
+    config = {
+        'camera_index': args.camera,
+        'width': args.width,
+        'height': args.height,
+        'scale_factor': args.scale_factor,
+        'min_neighbors': args.min_neighbors,
+        'waktu_kerja': args.waktu_kerja,
+        'waktu_istirahat': args.waktu_istirahat,
+        'waktu_persiapan': args.waktu_persiapan,
+        'zoom_enabled': not args.no_zoom,
+        'zoom_scale': args.zoom_scale,
+        'zoom_smooth': args.zoom_smooth,
+        'blur_enabled': not args.no_blur,
+        'blur_strength': args.blur_strength,
+        'face_padding': args.face_padding,
+        'show_bbox': True
+    }
+
+    system = WorkMonitoringSystem(config)
+    system.run()
+
+
+if _name_ == "_main_":
+    main()
