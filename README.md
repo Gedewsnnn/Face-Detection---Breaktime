@@ -1,4 +1,5 @@
-# Face-Detection---Breaktime
+# Face-Detection Breaktime
+<div align="justify">
 
 <div align="center">
   <img src="./assets/cover.jpg" alt="latar" width="600px"/>
