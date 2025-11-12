@@ -124,6 +124,7 @@ Menampilkan status aktivitas secara real-time dengan tampilan GUI interaktif ber
 - [Teknologi yang Digunakan](#-technologies-used)
 - [Output](Hasil%20Tes.md)
 - [Program](PROGRAM/)
+- [Saran](SARAN.md)
 
 ---
 
