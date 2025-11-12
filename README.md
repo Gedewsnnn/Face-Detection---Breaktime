@@ -2,7 +2,7 @@
   <img src="./assets/coverbreeaktime.jpg" alt="latar" width="600px"/>
 </div>
 
-Z
+Zas
   # Face Detection Breaktime System
   
   <p><i>Sistem monitoring otomatis berbasis deteksi wajah untuk keseimbangan produktivitas & kesehatan</i></p>
