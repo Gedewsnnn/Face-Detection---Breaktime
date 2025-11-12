@@ -91,3 +91,5 @@ Hasil pengujian menunjukkan sistem akurat dalam mengenali keberadaan wajah dan s
 Dengan struktur modular dan parameter yang fleksibel, program ini dapat dikembangkan lebih lanjut untuk kebutuhan industri, kantor, maupun penelitian ergonomi kerja.
 </div>
 
+# Video Demonstrasi
+[Tonton Demo Sistem di YouTube](https://youtu.be/qu17Bs4eRwI?si=hy5RQ7CWUZPNQdj4)
